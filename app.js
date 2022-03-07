@@ -10,13 +10,15 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useFindAndModify: false
 });
 
+app.use("/", require("./routes/users"));
+app.use("/", require("./routes/cards"));
 app.use((req, res, next) => {
   req.user = {
     _id: '6225ed51c2aec3cbbc7954cc' // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
-
   next();
 });
+
 
 app.listen(PORT, () => {
   console.log(`Ссылка на сервер: http://localhost:${PORT}`);
