@@ -1,32 +1,26 @@
 const User = require('../model/user');
-const BadRequest = require('../errors/BadRequest');
-const NotFound = require('../errors/NotFound');
+const { ERROR_CODE_400, ERROR_CODE_404, ERROR_CODE_500 } = require('../errors/errorsCode');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
-      }
-      if (err instanceof NotFound) {
-        return res.status(404).send(new NotFound('Пользователи не найдены'));
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-    });
+    .catch((err) => res.status(ERROR_CODE_500).send({ message: 'Ошибка по умолчанию.', ...err }));
 };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (user) {
+        res.status(200).send(user);
+      } else {
+        res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден' });
+      }
+    })
     .catch((err) => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(ERROR_CODE_400).send({ message: 'Проверьте введенные данные' });
       }
-      if (err instanceof NotFound) {
-        return res.status(404).send(new NotFound('Пользователи не найдены'));
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(ERROR_CODE_500).send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
@@ -36,44 +30,46 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE_400).send({ message: 'Проверьте введенные данные' });
       }
-      if (err instanceof NotFound) {
-        return res.status(404).send(new NotFound('Пользователи не найдены'));
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(ERROR_CODE_500).send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
 module.exports.updateUserInfo = (req, res) => {
   const { name, about } = req.body;
-  // eslint-disable-next-line no-underscore-dangle
-  User.findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.send({ data: user }))
+
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        return res.status(200).send({ data: user });
+      }
+      return res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден' });
+    })
     .catch((err) => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(ERROR_CODE_400).send({ message: 'Проверьте введенные данные' });
       }
-      if (err instanceof NotFound) {
-        return res.status(404).send(new NotFound('Пользователи не найдены'));
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(ERROR_CODE_500).send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  // eslint-disable-next-line no-underscore-dangle
-  User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((user) => res.send({ data: user }))
+
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        res.status(200).send({ data: user });
+      } else {
+        res.status(ERROR_CODE_404).send({ message: 'Пользователь не найден' });
+      }
+    })
     .catch((err) => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(ERROR_CODE_400).send({ message: 'Проверьте введенные данные' });
       }
-      if (err instanceof NotFound) {
-        return res.status(404).send(new NotFound('Пользователи не найдены'));
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(ERROR_CODE_500).send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
