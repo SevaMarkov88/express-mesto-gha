@@ -1,3 +1,4 @@
+const router = require('express').Router();
 const {
   getCards,
   createCard,
@@ -5,13 +6,11 @@ const {
   addLike,
   removeLike,
 } = require('../controllers/cards');
-// eslint-disable-next-line import/order
-const router = require('express').Router();
 
-router.get('/cards', getCards);
-router.post('/cards', createCard);
-router.delete('/cards/:cardId', deleteCardById);
-router.put('/cards/:cardId/likes', addLike);
-router.delete('/cards/:cardId/likes', removeLike);
+router.get('/', getCards);
+router.post('/', createCard);
+router.delete('/:cardId', deleteCardById);
+router.put('/:cardId/likes', addLike);
+router.delete('/:cardId/likes', removeLike);
 
 module.exports = router;
