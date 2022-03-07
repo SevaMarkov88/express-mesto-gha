@@ -3,9 +3,10 @@ const {
   createCard,
   deleteCardById,
   addLike,
-  removeLike
+  removeLike,
 } = require('../controllers/cards');
-const router = require("express").Router();
+// eslint-disable-next-line import/order
+const router = require('express').Router();
 
 router.get('/cards', getCards);
 router.post('/cards', createCard);

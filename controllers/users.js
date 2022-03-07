@@ -7,7 +7,10 @@ module.exports.getUsers = (req, res) => {
     .then((users) => res.send(users))
     .catch((err) => {
       if (err instanceof BadRequest) {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
+      }
+      if (err instanceof NotFound) {
+        return res.status(404).send(new NotFound('Пользователи не найдены'));
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });
@@ -18,10 +21,10 @@ module.exports.getUserById = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof BadRequest) {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
       }
       if (err instanceof NotFound) {
-        return res.status(404).send({ message: 'Пользователи не найдены' });
+        return res.status(404).send(new NotFound('Пользователи не найдены'));
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });
@@ -34,10 +37,10 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof BadRequest) {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
       }
       if (err instanceof NotFound) {
-        return res.status(404).send({ message: 'Пользователи не найдены' });
+        return res.status(404).send(new NotFound('Пользователи не найдены'));
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });
@@ -50,10 +53,10 @@ module.exports.updateUserInfo = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof BadRequest) {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
       }
       if (err instanceof NotFound) {
-        return res.status(404).send({ message: 'Пользователи не найдены' });
+        return res.status(404).send(new NotFound('Пользователи не найдены'));
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });
@@ -66,10 +69,10 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof BadRequest) {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(400).send(new BadRequest('Переданы некорректные данные'));
       }
       if (err instanceof NotFound) {
-        return res.status(404).send({ message: 'Пользователи не найдены' });
+        return res.status(404).send(new NotFound('Пользователи не найдены'));
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
     });

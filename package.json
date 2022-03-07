@@ -10,8 +10,7 @@
   "scripts": {
     "dev": "nodemon app.js",
     "start": "node app.js",
-    "lint": "npx eslint .",
-    "lintFix": "npx eslint . --fix"
+    "lint": "npx eslint ."
   },
   "devDependencies": {
     "eslint": "^8.10.0",
