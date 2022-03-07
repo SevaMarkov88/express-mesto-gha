@@ -6,9 +6,12 @@ const NotFound = require('../errors/NotFound');
 module.exports.getCards = (req, res) => {
   Cards.find({})
     .then((cards) => res.send(cards))
-    .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err}` });
-    });
+    .catch(err => {
+      if (err instanceof BadRequest) {
+        return res.status(400).send({message: 'Переданы некорректные данные'})
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' })
+    })
 }
 
 module.exports.createCard = (req, res) => {
@@ -30,9 +33,6 @@ module.exports.deleteCardById = (req, res) => {
   Cards.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send(card))
     .catch(err => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send({message: 'Переданы некорректные данные'})
-      }
       if (err instanceof NotFound) {
         return res.status(404).send({message: 'Карточки не найдены'})
       }

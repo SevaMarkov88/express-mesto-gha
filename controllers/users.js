@@ -9,9 +9,6 @@ module.exports.getUsers = (req, res) => {
       if (err instanceof BadRequest) {
         return res.status(400).send({message: 'Переданы некорректные данные'})
       }
-      if (err instanceof NotFound) {
-        return res.status(404).send({message: 'Пользователи не найдены'})
-      }
       return res.status(500).send({ message: 'Произошла ошибка' })
     })
 };
