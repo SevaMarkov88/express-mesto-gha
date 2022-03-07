@@ -6,15 +6,9 @@ const NotFound = require('../errors/NotFound');
 module.exports.getCards = (req, res) => {
   Cards.find({})
     .then((cards) => res.send(cards))
-    .catch(err => {
-      if (err instanceof BadRequest) {
-        return res.status(400).send({message: 'Переданы некорректные данные'})
-      }
-      if (err instanceof NotFound) {
-        return res.status(404).send({message: 'Карточки не найдены'})
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' })
-    })
+    .catch((err) => {
+      res.status(500).send({ message: `Произошла ошибка ${err}` });
+    });
 }
 
 module.exports.createCard = (req, res) => {
