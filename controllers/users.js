@@ -2,44 +2,46 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const BadRequestError = require('../errors/BadRequestError');
-const {
-  ERROR_CODE_400,
-  ERROR_CODE_404,
-  ERROR_CODE_500,
-} = require('../errors/errorsCode');
+const NotFoundError = require('../errors/NotFoundError');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res
-      .status(ERROR_CODE_500)
-      .send({ message: 'Ошибка по умолчанию.', ...err }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(err);
+      }
+    });
+};
+
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
         res.status(200)
           .send(user);
       } else {
-        res.status(ERROR_CODE_404)
-          .send({ message: 'Пользователь не найден' });
+        next(new NotFoundError('Пользователь не найден'));
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res
-          .status(ERROR_CODE_400)
-          .send({ message: 'Проверьте введенные данные' });
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(err);
       }
-      return res
-        .status(ERROR_CODE_500)
-        .send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -59,18 +61,15 @@ module.exports.createUser = (req, res) => {
 
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res
-          .status(ERROR_CODE_400)
-          .send({ message: 'Проверьте введенные данные' });
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(err);
       }
-      return res
-        .status(ERROR_CODE_500)
-        .send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
-module.exports.updateUserInfo = (req, res) => {
+module.exports.updateUserInfo = (req, res, next) => {
   const {
     name,
     about,
@@ -89,26 +88,21 @@ module.exports.updateUserInfo = (req, res) => {
   )
     .then((user) => {
       if (user) {
-        return res.status(200)
-          .send({ data: user });
+        res.status(200).send({ data: user });
+      } else {
+        next(new BadRequestError('Переданы некорректные данные.'));
       }
-      return res
-        .status(ERROR_CODE_404)
-        .send({ message: 'Пользователь не найден' });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res
-          .status(ERROR_CODE_400)
-          .send({ message: 'Проверьте введенные данные' });
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(err);
       }
-      return res
-        .status(ERROR_CODE_500)
-        .send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -124,19 +118,15 @@ module.exports.updateAvatar = (req, res) => {
         res.status(200)
           .send({ data: user });
       } else {
-        res.status(ERROR_CODE_404)
-          .send({ message: 'Пользователь не найден' });
+        next(new BadRequestError('Переданы некорректные данные.'));
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res
-          .status(ERROR_CODE_400)
-          .send({ message: 'Проверьте введенные данные' });
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные.'));
+      } else {
+        next(err);
       }
-      return res
-        .status(ERROR_CODE_500)
-        .send({ message: 'Ошибка по умолчанию.', ...err });
     });
 };
 
