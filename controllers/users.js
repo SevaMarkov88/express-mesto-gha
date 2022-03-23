@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const BadRequestError = require('../errors/BadRequestError');
 const {
@@ -6,7 +7,6 @@ const {
   ERROR_CODE_404,
   ERROR_CODE_500,
 } = require('../errors/errorsCode');
-const { send } = require('express/lib/response');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -145,7 +145,8 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      res.status(201).send(user);
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.status(201).send({ token });
     })
     .catch((err) => {
       if (err.message === 'IncorrectEmail') {
