@@ -1,5 +1,7 @@
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
+const BadRequestError = require('../errors/BadRequestError');
 const {
   ERROR_CODE_400,
   ERROR_CODE_404,
@@ -135,5 +137,30 @@ module.exports.updateAvatar = (req, res) => {
       return res
         .status(ERROR_CODE_500)
         .send({ message: 'Ошибка по умолчанию.', ...err });
+    });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email }).select('+password')
+    .orFail(new Error('IncorrectEmail'))
+    .then((user) => {
+      bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            next(new BadRequestError('Указан некорректный Email или пароль.'));
+          } else {
+            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            res.status(201).send({ token });
+          }
+        });
+    })
+    .catch((err) => {
+      if (err.message === 'IncorrectEmail') {
+        next(new BadRequestError('Указан некорректный Email или пароль.'));
+      } else {
+        next(err);
+      }
     });
 };
