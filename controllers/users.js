@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
 const BadRequestError = require('../errors/BadRequestError');
@@ -7,6 +6,7 @@ const {
   ERROR_CODE_404,
   ERROR_CODE_500,
 } = require('../errors/errorsCode');
+const { send } = require('express/lib/response');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -57,7 +57,7 @@ module.exports.createUser = (req, res) => {
       password: hash,
     }))
 
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res
@@ -143,18 +143,9 @@ module.exports.updateAvatar = (req, res) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({ email }).select('+password')
-    .orFail(new Error('IncorrectEmail'))
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            next(new BadRequestError('Указан некорректный Email или пароль.'));
-          } else {
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-            res.status(201).send({ token });
-          }
-        });
+      res.status(201).send(user);
     })
     .catch((err) => {
       if (err.message === 'IncorrectEmail') {

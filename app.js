@@ -12,10 +12,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   if (err) throw err;
 });
 
+app.use(express.json());
+
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use(express.json());
 app.use(router);
 
 app.listen(PORT, () => {
