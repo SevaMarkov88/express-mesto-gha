@@ -1,11 +1,12 @@
 {
   "name": "express-mesto-gha",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "app.js",
   "dependencies": {
     "body-parser": "^1.19.2",
     "express": "^4.17.2",
-    "mongoose": "^6.2.3"
+    "mongoose": "^6.2.3",
+    "validator": "^13.7.0"
   },
   "scripts": {
     "dev": "nodemon app.js",
