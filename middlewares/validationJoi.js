@@ -51,3 +51,10 @@ module.exports.idValidation = celebrate({
     id: Joi.string().hex().length(24),
   }),
 });
+
+module.exports.userUpdateValidation = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+});

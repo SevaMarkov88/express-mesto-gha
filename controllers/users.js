@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../model/user');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
+const ExistingEmailError = require('../errors/ExistingEmailError');
+const WrongLoginError = require('../errors/WrongLoginError');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -61,8 +63,10 @@ module.exports.createUser = (req, res, next) => {
 
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные.'));
+      } else if (err.code === 11000) {
+        next(new ExistingEmailError('Данный email уже существует в базе данных'));
       } else {
         next(err);
       }
@@ -136,11 +140,12 @@ module.exports.login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.status(201).send({ token });
+      res.cookie('token', token);
+      res.status(201).send({ message: 'Login successful' });
     })
     .catch((err) => {
       if (err.message === 'IncorrectEmail') {
-        next(new BadRequestError('Указан некорректный Email или пароль.'));
+        next(new WrongLoginError('Указан некорректный Email или пароль.'));
       } else {
         next(err);
       }
