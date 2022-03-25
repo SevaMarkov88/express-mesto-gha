@@ -8,7 +8,7 @@ module.exports.userValidation = celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().custom((value, helpers) => {
-      if (validator.isURL(value)) {
+      if (validator.isURL(v, {require_protocol: true})) {
         return value;
       }
       return helpers.message('Невалидная ссылка');
@@ -27,7 +27,7 @@ module.exports.cardValidation = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().custom((value, helpers) => {
-      if (validator.isURL(value)) {
+      if (validator.isURL(v, {require_protocol: true})) {
         return value;
       }
       return helpers.message('Невалидная ссылка');
@@ -38,7 +38,7 @@ module.exports.cardValidation = celebrate({
 module.exports.avatarValidation = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required().custom((value, helpers) => {
-      if (validator.isURL(value)) {
+      if (validator.isURL(v, {require_protocol: true})) {
         return value;
       }
       return helpers.message('Невалидная ссылка');
