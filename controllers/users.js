@@ -147,7 +147,7 @@ module.exports.login = (req, res, next) => {
       res.status(201).send({ message: 'Login successful' });
     })
     .catch((err) => {
-      if (err.message === 'IncorrectEmail') {
+      if (err.name === 'IncorrectEmail') {
         next(new WrongLoginError('Указан некорректный Email или пароль.'));
       } else {
         next(err);
