@@ -11,7 +11,7 @@ const { userUpdateValidation, avatarValidation, validateIdParameter } = require(
 
 router.get('/', auth, getUsers);
 router.get('/me', auth, getUser);
-router.get('/:userId', auth, validateIdParameter('cardId'), getUserById);
+router.get('/:userId', auth, validateIdParameter('userId'), getUserById);
 router.patch('/me', auth, userUpdateValidation, updateUserInfo);
 router.patch('/me/avatar', auth, avatarValidation, updateAvatar);
 
